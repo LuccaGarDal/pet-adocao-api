@@ -1,4 +1,4 @@
-package br.com.lucca.pet_adocao_api.entity;
+package br.com.lucca.pet_adocao_api.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table (name="pets")
-public class Pet {
+public class PetModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,18 +23,18 @@ public class Pet {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoPet tipo;
+    private TipoPet tipoPet;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private SexoPet sexo;
+    private SexoPet sexoPet;
 
     private Integer idade;
     private Double peso;
     private String raca;
 
     @Embedded
-    private Endereco endereco;
+    private EnderecoModel endereco;
 
     @Column(nullable = false)
     private LocalDateTime dataCadastro;
