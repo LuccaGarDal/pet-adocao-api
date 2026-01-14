@@ -47,4 +47,16 @@ public class PetController {
         List<PetModel> listPets = petRepository.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(listPets);
     }
+
+    @PutMapping("/pets/{id}")
+    public ResponseEntity<Object> updatePet (@PathVariable(value = "id") Long id,
+                                             @RequestBody PetRequestDTO petRequestDTO) {
+        Optional<PetModel> petModel0 = petRepository.findById(id);
+        if (petModel0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
+        }
+        var petModel = petModel0.get();
+        BeanUtils.copyProperties(petRequestDTO, petModel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(petRepository.save(petModel));
+    }
 }
