@@ -9,11 +9,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-// POST, GET, PUT, DELETE
+import java.awt.*;
+import java.util.List;
+import java.util.Optional;
+
+// POST(feito), GET, PUT, DELETE
 
 @RestController
 public class PetController {
@@ -31,4 +33,18 @@ public class PetController {
         return ResponseEntity.status(HttpStatus.CREATED).body(petRepository.save(petModel));
     }
 
+    @GetMapping("/pets/{id}")
+    public ResponseEntity<Object> getPet (@PathVariable(value = "id") Long id) {
+        Optional<PetModel> petModel = petRepository.findById(id);
+        if (petModel.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(petModel.get());
+    }
+
+    @GetMapping("/pets")
+    public ResponseEntity<List<PetModel>> getAllPets () {
+        List<PetModel> listPets = petRepository.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(listPets);
+    }
 }
