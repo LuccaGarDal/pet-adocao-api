@@ -59,4 +59,15 @@ public class PetController {
         BeanUtils.copyProperties(petRequestDTO, petModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(petRepository.save(petModel));
     }
+
+    @DeleteMapping ("/pets/{id}")
+    public ResponseEntity<Object> deletePet (@PathVariable (value = "id") Long id) {
+        Optional<PetModel> petModel0 = petRepository.findById(id);
+        if (petModel0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
+        }
+        var petModel = petModel0.get();
+        petRepository.delete(petModel);
+        return ResponseEntity.status(HttpStatus.OK).body("Pet "+id+" delete successful");
+    }
 }
