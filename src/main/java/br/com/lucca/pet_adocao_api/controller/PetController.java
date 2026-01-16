@@ -1,6 +1,8 @@
 package br.com.lucca.pet_adocao_api.controller;
 
+import br.com.lucca.pet_adocao_api.dtos.EnderecoDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetRequestDTO;
+import br.com.lucca.pet_adocao_api.dtos.PetResponseDTO;
 import br.com.lucca.pet_adocao_api.model.EnderecoModel;
 import br.com.lucca.pet_adocao_api.model.PetModel;
 import br.com.lucca.pet_adocao_api.repository.PetRepository;
@@ -12,11 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-// POST(feito), GET, PUT, DELETE
+// POST(ok), GET(ok), PUT, DELETE
 
 @RestController
 public class PetController {
@@ -25,36 +27,50 @@ public class PetController {
     PetRepository petRepository;
 
     @PostMapping("/pets")
-    public ResponseEntity<PetModel> savePet (@RequestBody @Valid PetRequestDTO petRequestDTO) {
+    public ResponseEntity<PetResponseDTO> savePet (@RequestBody @Valid PetRequestDTO petRequestDTO) {
+
         var petModel = new PetModel();
         BeanUtils.copyProperties(petRequestDTO, petModel);
-        EnderecoModel endereco = new EnderecoModel();
+
+        var endereco = new EnderecoModel();
         BeanUtils.copyProperties(petRequestDTO.endereco(), endereco);
         petModel.setEndereco(endereco);
-        return ResponseEntity.status(HttpStatus.CREATED).body(petRepository.save(petModel));
+
+        var savedPet = petRepository.save(petModel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(savedPet));
     }
 
     @GetMapping("/pets/{id}")
-    public ResponseEntity<Object> getPet (@PathVariable(value = "id") Long id) {
+    public ResponseEntity<PetResponseDTO> getPet (@PathVariable(value = "id") Long id) {
+
         Optional<PetModel> petModel = petRepository.findById(id);
+
         if (petModel.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.status(HttpStatus.OK).body(petModel.get());
+
+        var petSaved = petModel.get();
+        return ResponseEntity.status(HttpStatus.OK).body(toResponse(petSaved));
     }
 
     @GetMapping("/pets")
-    public ResponseEntity<List<PetModel>> getAllPets () {
+    public ResponseEntity<List<PetResponseDTO>> getAllPets () {
         List<PetModel> listPets = petRepository.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(listPets);
+
+        List<PetResponseDTO> response = new ArrayList<>();
+        for (PetModel petModel : listPets) {
+            response.add(toResponse(petModel));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/pets/{id}")
-    public ResponseEntity<Object> updatePet (@PathVariable(value = "id") Long id,
+    public ResponseEntity<PetResponseDTO> updatePet (@PathVariable(value = "id") Long id,
                                              @RequestBody @Valid PetRequestDTO petRequestDTO) {
         Optional<PetModel> petOptional = petRepository.findById(id);
         if (petOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         var petModel = petOptional.get();
         petModel.setNomeCompleto(petRequestDTO.nomeCompleto());
@@ -67,17 +83,46 @@ public class PetController {
         EnderecoModel enderecoModel = petModel.getEndereco();
         BeanUtils.copyProperties(petRequestDTO.endereco(), enderecoModel);
         petModel.setEndereco(enderecoModel);
-        return ResponseEntity.status(HttpStatus.OK).body(petRepository.save(petModel));
+        var savedPet = petRepository.save(petModel);
+
+        return ResponseEntity.status(HttpStatus.OK).body(toResponse(savedPet));
     }
 
     @DeleteMapping ("/pets/{id}")
-    public ResponseEntity<Object> deletePet (@PathVariable (value = "id") Long id) {
+    public ResponseEntity<Void> deletePet (@PathVariable (value = "id") Long id) {
         Optional<PetModel> petModel0 = petRepository.findById(id);
+
         if (petModel0.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        var petModel = petModel0.get();
-        petRepository.delete(petModel);
-        return ResponseEntity.status(HttpStatus.OK).body("Pet "+id+" delete successful");
+
+        petRepository.delete(petModel0.get());
+        return ResponseEntity.noContent().build();
+    }
+
+    public PetResponseDTO toResponse (PetModel pet) {
+        EnderecoDTO enderecoDTO = null;
+
+        var endereco = pet.getEndereco();
+
+        if (pet.getEndereco() != null) {
+            enderecoDTO = new EnderecoDTO(
+                    endereco.getRua(),
+                    endereco.getNumero(),
+                    endereco.getBairro(),
+                    endereco.getCidade());
+        }
+
+        return new PetResponseDTO (
+                pet.getId(),
+                pet.getNomeCompleto(),
+                pet.getTipoPet(),
+                pet.getSexoPet(),
+                pet.getIdade(),
+                pet.getPeso(),
+                pet.getRaca(),
+                enderecoDTO,
+                pet.getDataCadastro()
+                );
     }
 }

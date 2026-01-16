@@ -1,9 +1,8 @@
 package br.com.lucca.pet_adocao_api.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
-public record EnderecoRequestDTO(
+public record EnderecoDTO(
         @NotBlank
         String rua,
 
