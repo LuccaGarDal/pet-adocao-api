@@ -7,6 +7,7 @@ import br.com.lucca.pet_adocao_api.repository.PetRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,14 +51,23 @@ public class PetController {
 
     @PutMapping("/pets/{id}")
     public ResponseEntity<Object> updatePet (@PathVariable(value = "id") Long id,
-                                             @RequestBody PetRequestDTO petRequestDTO) {
-        Optional<PetModel> petModel0 = petRepository.findById(id);
-        if (petModel0.isEmpty()) {
+                                             @RequestBody @Valid PetRequestDTO petRequestDTO) {
+        Optional<PetModel> petOptional = petRepository.findById(id);
+        if (petOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
         }
-        var petModel = petModel0.get();
-        BeanUtils.copyProperties(petRequestDTO, petModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(petRepository.save(petModel));
+        var petModel = petOptional.get();
+        petModel.setNomeCompleto(petRequestDTO.nomeCompleto());
+        petModel.setTipoPet(petRequestDTO.tipoPet());
+        petModel.setSexoPet(petRequestDTO.sexoPet());
+        petModel.setIdade(petRequestDTO.idade());
+        petModel.setPeso(petRequestDTO.peso());
+        petModel.setRaca(petRequestDTO.raca());
+
+        EnderecoModel enderecoModel = petModel.getEndereco();
+        BeanUtils.copyProperties(petRequestDTO.endereco(), enderecoModel);
+        petModel.setEndereco(enderecoModel);
+        return ResponseEntity.status(HttpStatus.OK).body(petRepository.save(petModel));
     }
 
     @DeleteMapping ("/pets/{id}")
