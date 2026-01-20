@@ -3,13 +3,13 @@ package br.com.lucca.pet_adocao_api.controller;
 import br.com.lucca.pet_adocao_api.dtos.EnderecoDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetRequestDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetResponseDTO;
+import br.com.lucca.pet_adocao_api.mapper.PetMapper;
 import br.com.lucca.pet_adocao_api.model.EnderecoModel;
 import br.com.lucca.pet_adocao_api.model.PetModel;
 import br.com.lucca.pet_adocao_api.repository.PetRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +26,16 @@ public class PetController {
     @Autowired
     PetRepository petRepository;
 
+    @Autowired
+    PetMapper petMapper;
+
     @PostMapping("/pets")
     public ResponseEntity<PetResponseDTO> savePet (@RequestBody @Valid PetRequestDTO petRequestDTO) {
 
-        var petModel = new PetModel();
-        BeanUtils.copyProperties(petRequestDTO, petModel);
-
-        var endereco = new EnderecoModel();
-        BeanUtils.copyProperties(petRequestDTO.endereco(), endereco);
-        petModel.setEndereco(endereco);
+        var petModel = petMapper.toModel(petRequestDTO);
 
         var savedPet = petRepository.save(petModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(savedPet));
+        return ResponseEntity.status(HttpStatus.CREATED).body(petMapper.toResponse(savedPet));
     }
 
     @GetMapping("/pets/{id}")
@@ -50,19 +48,19 @@ public class PetController {
         }
 
         var petSaved = petModel.get();
-        return ResponseEntity.status(HttpStatus.OK).body(toResponse(petSaved));
+        return ResponseEntity.status(HttpStatus.OK).body(petMapper.toResponse(petSaved));
     }
 
     @GetMapping("/pets")
     public ResponseEntity<List<PetResponseDTO>> getAllPets () {
         List<PetModel> listPets = petRepository.findAll();
 
-        List<PetResponseDTO> response = new ArrayList<>();
+        List<PetResponseDTO> responseList = new ArrayList<>();
         for (PetModel petModel : listPets) {
-            response.add(toResponse(petModel));
+            responseList.add(petMapper.toResponse(petModel));
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(responseList);
     }
 
     @PutMapping("/pets/{id}")
@@ -73,19 +71,11 @@ public class PetController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         var petModel = petOptional.get();
-        petModel.setNomeCompleto(petRequestDTO.nomeCompleto());
-        petModel.setTipoPet(petRequestDTO.tipoPet());
-        petModel.setSexoPet(petRequestDTO.sexoPet());
-        petModel.setIdade(petRequestDTO.idade());
-        petModel.setPeso(petRequestDTO.peso());
-        petModel.setRaca(petRequestDTO.raca());
+        petMapper.updatePet(petModel, petRequestDTO);
 
-        EnderecoModel enderecoModel = petModel.getEndereco();
-        BeanUtils.copyProperties(petRequestDTO.endereco(), enderecoModel);
-        petModel.setEndereco(enderecoModel);
         var savedPet = petRepository.save(petModel);
 
-        return ResponseEntity.status(HttpStatus.OK).body(toResponse(savedPet));
+        return ResponseEntity.status(HttpStatus.OK).body(petMapper.toResponse(savedPet));
     }
 
     @DeleteMapping ("/pets/{id}")
@@ -100,29 +90,4 @@ public class PetController {
         return ResponseEntity.noContent().build();
     }
 
-    public PetResponseDTO toResponse (PetModel pet) {
-        EnderecoDTO enderecoDTO = null;
-
-        var endereco = pet.getEndereco();
-
-        if (pet.getEndereco() != null) {
-            enderecoDTO = new EnderecoDTO(
-                    endereco.getRua(),
-                    endereco.getNumero(),
-                    endereco.getBairro(),
-                    endereco.getCidade());
-        }
-
-        return new PetResponseDTO (
-                pet.getId(),
-                pet.getNomeCompleto(),
-                pet.getTipoPet(),
-                pet.getSexoPet(),
-                pet.getIdade(),
-                pet.getPeso(),
-                pet.getRaca(),
-                enderecoDTO,
-                pet.getDataCadastro()
-                );
-    }
 }
