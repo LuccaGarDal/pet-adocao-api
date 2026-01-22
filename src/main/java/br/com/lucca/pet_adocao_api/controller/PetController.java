@@ -1,14 +1,11 @@
 package br.com.lucca.pet_adocao_api.controller;
 
-import br.com.lucca.pet_adocao_api.dtos.EnderecoDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetRequestDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetResponseDTO;
 import br.com.lucca.pet_adocao_api.mapper.PetMapper;
-import br.com.lucca.pet_adocao_api.model.EnderecoModel;
 import br.com.lucca.pet_adocao_api.model.PetModel;
 import br.com.lucca.pet_adocao_api.repository.PetRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +23,13 @@ public class PetController {
     @Autowired
     PetRepository petRepository;
 
-    @Autowired
-    PetMapper petMapper;
-
     @PostMapping("/pets")
     public ResponseEntity<PetResponseDTO> savePet (@RequestBody @Valid PetRequestDTO petRequestDTO) {
 
-        var petModel = petMapper.toModel(petRequestDTO);
+        var petModel = PetMapper.toModel(petRequestDTO);
 
         var savedPet = petRepository.save(petModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(petMapper.toResponse(savedPet));
+        return ResponseEntity.status(HttpStatus.CREATED).body(PetMapper.toResponse(savedPet));
     }
 
     @GetMapping("/pets/{id}")
@@ -48,7 +42,7 @@ public class PetController {
         }
 
         var petSaved = petModel.get();
-        return ResponseEntity.status(HttpStatus.OK).body(petMapper.toResponse(petSaved));
+        return ResponseEntity.status(HttpStatus.OK).body(PetMapper.toResponse(petSaved));
     }
 
     @GetMapping("/pets")
@@ -57,7 +51,7 @@ public class PetController {
 
         List<PetResponseDTO> responseList = new ArrayList<>();
         for (PetModel petModel : listPets) {
-            responseList.add(petMapper.toResponse(petModel));
+            responseList.add(PetMapper.toResponse(petModel));
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(responseList);
@@ -71,11 +65,11 @@ public class PetController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         var petModel = petOptional.get();
-        petMapper.updatePet(petModel, petRequestDTO);
+        PetMapper.updatePet(petModel, petRequestDTO);
 
         var savedPet = petRepository.save(petModel);
 
-        return ResponseEntity.status(HttpStatus.OK).body(petMapper.toResponse(savedPet));
+        return ResponseEntity.status(HttpStatus.OK).body(PetMapper.toResponse(savedPet));
     }
 
     @DeleteMapping ("/pets/{id}")

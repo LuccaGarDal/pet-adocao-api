@@ -6,21 +6,24 @@ import br.com.lucca.pet_adocao_api.dtos.PetResponseDTO;
 import br.com.lucca.pet_adocao_api.model.EnderecoModel;
 import br.com.lucca.pet_adocao_api.model.PetModel;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Bean;
 
 public class PetMapper {
 
-    public PetModel toModel (PetRequestDTO petRequestDTO) {
+    private PetMapper () {}
+
+    public static PetModel toModel (PetRequestDTO petRequestDTO) {
         var petModel = new PetModel();
         BeanUtils.copyProperties(petRequestDTO, petModel);
 
         var endereco = new EnderecoModel();
-        BeanUtils.copyProperties(endereco, petRequestDTO);
+        BeanUtils.copyProperties(petRequestDTO.endereco(), endereco);
         petModel.setEndereco(endereco);
 
         return petModel;
     }
 
-    public PetResponseDTO toResponse (PetModel petModel) {
+    public static PetResponseDTO toResponse (PetModel petModel) {
         var endereco = petModel.getEndereco();
 
         return new PetResponseDTO(
@@ -41,7 +44,7 @@ public class PetMapper {
         );
     }
 
-    public void updatePet (PetModel petModel, PetRequestDTO petRequestDTO) {
+    public static void updatePet (PetModel petModel, PetRequestDTO petRequestDTO) {
         petModel.setNomeCompleto(petRequestDTO.nomeCompleto());
         petModel.setTipoPet(petRequestDTO.tipoPet());
         petModel.setSexoPet(petRequestDTO.sexoPet());
