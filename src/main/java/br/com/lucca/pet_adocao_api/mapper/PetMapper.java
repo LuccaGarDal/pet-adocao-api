@@ -3,10 +3,9 @@ package br.com.lucca.pet_adocao_api.mapper;
 import br.com.lucca.pet_adocao_api.dtos.EnderecoDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetRequestDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetResponseDTO;
-import br.com.lucca.pet_adocao_api.model.EnderecoModel;
-import br.com.lucca.pet_adocao_api.model.PetModel;
+import br.com.lucca.pet_adocao_api.model.pet.EnderecoModel;
+import br.com.lucca.pet_adocao_api.model.pet.PetModel;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Bean;
 
 public class PetMapper {
 

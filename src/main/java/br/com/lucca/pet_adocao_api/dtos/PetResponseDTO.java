@@ -1,8 +1,7 @@
 package br.com.lucca.pet_adocao_api.dtos;
 
-import br.com.lucca.pet_adocao_api.model.EnderecoModel;
-import br.com.lucca.pet_adocao_api.model.SexoPet;
-import br.com.lucca.pet_adocao_api.model.TipoPet;
+import br.com.lucca.pet_adocao_api.model.pet.SexoPet;
+import br.com.lucca.pet_adocao_api.model.pet.TipoPet;
 
 import java.time.LocalDateTime;
 

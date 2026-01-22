@@ -3,7 +3,7 @@ package br.com.lucca.pet_adocao_api.controller;
 import br.com.lucca.pet_adocao_api.dtos.PetRequestDTO;
 import br.com.lucca.pet_adocao_api.dtos.PetResponseDTO;
 import br.com.lucca.pet_adocao_api.mapper.PetMapper;
-import br.com.lucca.pet_adocao_api.model.PetModel;
+import br.com.lucca.pet_adocao_api.model.pet.PetModel;
 import br.com.lucca.pet_adocao_api.repository.PetRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package br.com.lucca.pet_adocao_api.model;
+package br.com.lucca.pet_adocao_api.model.pet;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
