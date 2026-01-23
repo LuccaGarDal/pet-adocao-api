@@ -1,7 +1,9 @@
 package br.com.lucca.pet_adocao_api.controller;
 
 import br.com.lucca.pet_adocao_api.dtos.AuthenticationDTO;
+import br.com.lucca.pet_adocao_api.dtos.LoginResponseDTO;
 import br.com.lucca.pet_adocao_api.dtos.RegisterDTO;
+import br.com.lucca.pet_adocao_api.infra.security.TokenService;
 import br.com.lucca.pet_adocao_api.model.usuario.UsuarioModel;
 import br.com.lucca.pet_adocao_api.repository.UsuarioRepository;
 import jakarta.validation.Valid;
@@ -18,6 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
+
+    @Autowired
+    TokenService tokenService;
+
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -29,7 +35,9 @@ public class AuthenticationController {
         var emailSenha = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
         var auth = authenticationManager.authenticate(emailSenha);
 
-        return ResponseEntity.ok().build();
+        var token = tokenService.generateToken((UsuarioModel) auth.getPrincipal());
+
+        return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
     @PostMapping ("/register")
