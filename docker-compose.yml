@@ -4,7 +4,7 @@ services:
   mysql-pet:
     image: mysql:8.0
     container_name: mysql_pet_container
-    restart: always
+    restart: no
     environment:
       MYSQL_ROOT_PASSWORD: pet123
       MYSQL_DATABASE: crud
