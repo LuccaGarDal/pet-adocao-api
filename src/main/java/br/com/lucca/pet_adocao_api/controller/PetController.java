@@ -17,6 +17,7 @@ import java.util.Optional;
 
 // POST(ok), GET(ok), PUT, DELETE
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class PetController {
 
